@@ -1,6 +1,7 @@
 ThisBuild / resolvers ++= Seq(
     "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
-    Resolver.mavenLocal
+    Resolver.mavenLocal,
+    "Maven Central" at "https://mvnrepository.com/"
 )
 
 name := "BigRadio"
@@ -17,12 +18,24 @@ val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided")
 
+val jobDependencies = Seq(
+  "javazoom" % "jlayer" % "1.0.1"
+)
+
+val testDependencies = Seq(
+  "org.scalatest" %% "scalatest" % "3.0.4" % Test,
+  "org.scalamock" %% "scalamock" % "4.1.0" % Test
+)
+
+
 lazy val root = (project in file(".")).
   settings(
-    libraryDependencies ++= flinkDependencies
+    libraryDependencies ++= flinkDependencies,
+    libraryDependencies ++= jobDependencies,
+    libraryDependencies ++= testDependencies
   )
 
-assembly / mainClass := Some("org.ackermag.Job")
+assembly / mainClass := Some("org.ackermag.bigradio.JobRunner")
 
 // make run command include the provided dependencies
 Compile / run  := Defaults.runTask(Compile / fullClasspath,
@@ -36,3 +49,5 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
+
+updateOptions := updateOptions.value.withCachedResolution(true)
